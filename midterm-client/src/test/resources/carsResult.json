@@ -1,0 +1,16 @@
+[
+  {
+    "id": 3,
+    "brand": "Nissan",
+    "type": "Ultima",
+    "licensePlate": "HKJ3456",
+    "owner": {
+      "id": 2,
+      "name": "Kane Barker",
+      "email": "kbarker@gmail.com",
+      "age": 24,
+      "version": 1
+    },
+    "version": 1
+  }
+]

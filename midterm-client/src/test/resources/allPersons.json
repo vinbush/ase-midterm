@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "name": "Sam Houston",
+    "email": "sam@houston.com",
+    "age": 30,
+    "version": 1
+  },
+  {
+    "id": 2,
+    "name": "Kane Barker",
+    "email": "kbarker@gmail.com",
+    "age": 24,
+    "version": 1
+  },
+  {
+    "id": 3,
+    "name": "Otto von Bismark",
+    "email": "otto@gmail.com",
+    "age": 56,
+    "version": 1
+  },
+  {
+    "id": 4,
+    "name": "Rob Robbie",
+    "email": "rob@yahoo.net",
+    "age": 19,
+    "version": 1
+  },
+  {
+    "id": 5,
+    "name": "John Smith",
+    "email": "jsmith@fake.com",
+    "age": 41,
+    "version": 1
+  }
+]

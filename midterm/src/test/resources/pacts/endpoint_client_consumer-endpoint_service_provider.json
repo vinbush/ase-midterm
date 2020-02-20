@@ -1,0 +1,161 @@
+{
+    "provider": {
+        "name": "endpoint_service_provider"
+    },
+    "consumer": {
+        "name": "endpoint_client_consumer"
+    },
+    "interactions": [
+        {
+            "description": "Create a person",
+            "request": {
+                "method": "POST",
+                "path": "/person",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "body": {
+                    "age": 27,
+                    "email": "new@new.com",
+                    "id": null,
+                    "name": "New Person",
+                    "version": 1
+                }
+            },
+            "response": {
+                "status": 201,
+                "headers": {
+                    "Location": "http://localhost:8080/person/6"
+                }
+            },
+            "providerStates": [
+                {
+                    "name": "test create"
+                }
+            ]
+        },
+        {
+            "description": "Delete a person",
+            "request": {
+                "method": "DELETE",
+                "path": "/person/5"
+            },
+            "response": {
+                "status": 204
+            },
+            "providerStates": [
+                {
+                    "name": "test delete"
+                }
+            ]
+        },
+        {
+            "description": "Retrieve all person's cars",
+            "request": {
+                "method": "GET",
+                "path": "/person/2/cars"
+            },
+            "response": {
+                "status": 200,
+                "body": [
+                    {
+                        "brand": "Nissan",
+                        "id": 3,
+                        "licensePlate": "HKJ3456",
+                        "owner": {
+                            "age": 24,
+                            "email": "kbarker@gmail.com",
+                            "id": 2,
+                            "name": "Kane Barker",
+                            "version": 1
+                        },
+                        "type": "Ultima",
+                        "version": 1
+                    }
+                ]
+            },
+            "providerStates": [
+                {
+                    "name": "test get all"
+                }
+            ]
+        },
+        {
+            "description": "Retrieve all persons",
+            "request": {
+                "method": "GET",
+                "path": "/person"
+            },
+            "response": {
+                "status": 200
+            },
+            "providerStates": [
+                {
+                    "name": "test get all"
+                }
+            ]
+        },
+        {
+            "description": "Retrieve a person",
+            "request": {
+                "method": "GET",
+                "path": "/person/1"
+            },
+            "response": {
+                "status": 200,
+                "body": {
+                    "age": 30,
+                    "email": "sam@houston.com",
+                    "id": 1,
+                    "name": "Sam Houston",
+                    "version": 1
+                }
+            },
+            "providerStates": [
+                {
+                    "name": "test get"
+                }
+            ]
+        },
+        {
+            "description": "Update a person",
+            "request": {
+                "method": "PUT",
+                "path": "/person/4",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "body": {
+                    "age": 19,
+                    "email": "rrobbie@gmail.com",
+                    "id": 4,
+                    "name": "Rob Robbie",
+                    "version": 1
+                }
+            },
+            "response": {
+                "status": 200,
+                "body": {
+                    "age": 19,
+                    "email": "rrobbie@gmail.com",
+                    "id": 4,
+                    "name": "Rob Robbie",
+                    "version": 2
+                }
+            },
+            "providerStates": [
+                {
+                    "name": "test update"
+                }
+            ]
+        }
+    ],
+    "metadata": {
+        "pact-specification": {
+            "version": "3.0.0"
+        },
+        "pact-jvm": {
+            "version": "3.5.8"
+        }
+    }
+}
