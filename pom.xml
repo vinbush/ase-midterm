@@ -103,6 +103,5 @@
 
   <modules>
     <module>midterm</module>
-    <module>midterm-client</module>
   </modules>
 </project>

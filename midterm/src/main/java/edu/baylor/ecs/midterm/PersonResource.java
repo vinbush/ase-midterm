@@ -1,7 +1,7 @@
 package edu.baylor.ecs.midterm;
 
-import edu.baylor.ecs.midterm.model.Car;
 import edu.baylor.ecs.midterm.model.Person;
+import edu.baylor.ecs.midterm.model.Team;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
@@ -26,8 +26,15 @@ public class PersonResource {
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
     public Collection<Person> findAll() throws Exception {
-        return em.createNamedQuery("Person.findAll", Person.class)
+        List<Person> people = em.createNamedQuery("Person.findAll", Person.class)
                 .getResultList();
+        for(Person person : people) {
+            person.getLedTeam().getMembers().size();
+            person.getTeam().getMembers().size();
+        }
+
+        return people;
+
     }
 
     @GET
@@ -75,27 +82,20 @@ public class PersonResource {
                     .build();
         }
         return Response
-                .created(new URI("person/" + person.getId().toString()))
+                .created(new URI("car/" + person.getId().toString()))
                 .build();
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{personId}")
+    @Path("/{carId}")
     @Transactional
-    public Response remove(@PathParam("personId") Integer personId) throws Exception {
+    public Response remove(@PathParam("carId") Integer carId) throws Exception {
         try {
-            Person person = em.find(Person.class, personId);
-            List<Car> cars = em.createNamedQuery("Car.findAllByPerson")
-                    .setParameter("owner", person)
-                    .getResultList();
-
-            // get rid of ownership for this person, but don't delete the cars
-            for (Car car : cars) {
-                car.setOwner(null);
-                em.merge(car);
+            Person person = em.find(Person.class, carId);
+            if (person.getTeam() != null) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Cannot remove member on team!").build();
             }
-
             em.remove(person);
         } catch (Exception e) {
             return Response
@@ -112,30 +112,42 @@ public class PersonResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{personId}")
+    @Path("/{carId}")
     @Transactional
-    public Response update(@PathParam("personId") Integer personId, Person person) throws Exception {
+    public Response update(@PathParam("carId") Integer carId, Person person) throws Exception {
         try {
-            Person entity = em.find(Person.class, personId);
-
+            Person entity = em.find(Person.class, carId);
             if (null == entity) {
                 return Response
                         .status(Response.Status.NOT_FOUND)
-                        .entity("Person with id of " + personId + " does not exist.")
+                        .entity("Car with id of " + carId + " does not exist.")
                         .build();
             }
 
-            if (person.getId() == null || !person.getId().equals(personId)) {
+            if (person.getId() == null || !person.getId().equals(carId)) {
                 return Response
                         .status(Response.Status.BAD_REQUEST)
-                        .entity("Person id expected to be " + personId + ", but was " + person.getId() + ".")
+                        .entity("Car id expected to be " + carId + ", but was " + person.getId() + ".")
                         .build();
             }
 
-            // all this setter logic would go in a service method, if there was a service layer
-            entity.setName(person.getName());
-            entity.setEmail(person.getEmail());
-            entity.setAge(person.getAge());
+            Team owner;
+            if ((person.getTeam()) != null) {
+                owner = person.getTeam();
+                if (owner.getId() != null) {
+                    Team fetchedOwner = em.find(Team.class, owner.getId());
+                    if (fetchedOwner == null) {
+                        return Response.status(Response.Status.BAD_REQUEST)
+                                .entity("Car was given invalid owner! ID " + owner.getId())
+                                .build();
+                    }
+                    entity.setTeam(fetchedOwner);
+                }
+            }
+
+//            entity.setBrand(person.getBrand());
+//            entity.setLicensePlate(person.getLicensePlate());
+//            entity.setType(person.getType());
             try {
                 Person merged = em.merge(entity);
                 em.flush();
@@ -149,33 +161,11 @@ public class PersonResource {
             }
 
         } catch (Exception e) {
+            System.err.println(e);
             return Response
                     .serverError()
                     .entity(e.getMessage())
                     .build();
         }
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{personId}/cars")
-    public Response getCars(@PathParam("personId") Integer personId) {
-        Person person = em.find(Person.class, personId);
-
-        if (person == null) {
-            return Response
-                    .status(Response.Status.NOT_FOUND)
-                    .entity("Person with id of " + personId + " does not exist.")
-                    .build();
-        }
-
-        List<Car> cars = em.createNamedQuery("Car.findAllByPerson")
-                .setParameter("owner", person)
-                .getResultList();
-
-        return Response
-                .status(Response.Status.OK)
-                .entity(cars)
-                .build();
     }
 }

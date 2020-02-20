@@ -5,51 +5,57 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
 @Table(name = "person")
 @NamedQueries({
-        @NamedQuery(name = "Person.findAll", query = "select p from Person p")
+        @NamedQuery(name = "Person.findAll", query = "SELECT p from Person p"),
+        @NamedQuery(name = "Person.findAllByTeam", query = "select c from Person c where c.team = :team")
 })
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Person.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Person {
 
     @Id
     @SequenceGenerator(
-            name = "person_sequence",
+            name = "person_seq",
             allocationSize = 1,
-            initialValue = 6
+            initialValue = 13
     )
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "person_sequence")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "person_seq")
     @Column(name = "id", updatable = false, nullable = false)
-    protected Integer id;
-
-    @NotNull
-    @Size(min = 3, max = 50)
-    @Column(nullable = false)
-    protected String name;
+    private Integer id;
 
     @NotNull
     @Column(nullable = false)
-    @Pattern(regexp = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$", flags = Pattern.Flag.CASE_INSENSITIVE)
-    protected String email;
+    protected LocalDateTime birthdate;
 
+    @OneToOne
+    @JoinColumn(name = "led_team_id")
+    protected Team ledTeam;
+
+    @NotNull
+    @Size(min = 1, max = 50)
     @Column(nullable = false)
-    protected int age;
+    private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "team_id")
+    private Team team;
 
     @Version
-    protected Integer version = 0;
+    private Integer version = 0;
 
     public Person() {
     }
 
-    public Person(int age, String email, String name, Integer version) {
+    public Person(String name, LocalDateTime birthdate, Team ledTeam, Team team, Integer version) {
         this.name = name;
-        this.email = email;
-        this.age = age;
+        this.birthdate = birthdate;
+        this.ledTeam = ledTeam;
+        this.team = team;
         this.version = version;
     }
 
@@ -69,20 +75,28 @@ public class Person {
         this.name = name;
     }
 
-    public String getEmail() {
-        return email;
+    public LocalDateTime getBirthdate() {
+        return birthdate;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setBirthdate(LocalDateTime birthdate) {
+        this.birthdate = birthdate;
     }
 
-    public int getAge() {
-        return age;
+    public Team getTeam() {
+        return team;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setTeam(Team team) {
+        this.team = team;
+    }
+
+    public Team getLedTeam() {
+        return ledTeam;
+    }
+
+    public void setLedTeam(Team ledTeam) {
+        this.ledTeam = ledTeam;
     }
 
     public Integer getVersion() {
@@ -97,17 +111,18 @@ public class Person {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Person other = (Person) o;
-        // person ID not included in equality check
-        return Objects.equals(name, other.name) &&
-                Objects.equals(email, other.email) &&
-                Objects.equals(age, other.age) &&
-                Objects.equals(version, other.version);
+        Person person = (Person) o;
+        // person ID not included in equality check, but team ID is because for team to be set, they must already exist w/ ID
+        return Objects.equals(name, person.name) &&
+                Objects.equals(birthdate, person.birthdate) &&
+                Objects.equals(version, person.version) &&
+                ((team == null && person.team == null) ||
+                        (team != null && person.team != null && Objects.equals(team.getId(), person.team.getId())));
     }
 
     @Override
     public int hashCode() {
         // person ID not included in hash code
-        return Objects.hash(age, email, name, version);
+        return Objects.hash(name, birthdate, version);
     }
 }
