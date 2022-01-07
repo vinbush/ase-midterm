@@ -13,7 +13,7 @@
     <version.thorntail>2.6.0.Final</version.thorntail>
     <version.dropwizard>1.0.9</version.dropwizard>
 
-    <version.h2>1.4.196</version.h2>
+    <version.h2>2.0.206</version.h2>
     <version.mysql>5.1.43</version.mysql>
 
     <version.junit>4.12</version.junit>
